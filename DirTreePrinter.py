@@ -17,7 +17,6 @@ class _dir_tree_printer:
     def _should_ignore(self, entry):
         for pat in self.ignore_list:
             if fnmatch.fnmatch(entry, pat):
-                print(entry)
                 return True
         return False
 
@@ -77,7 +76,7 @@ class _dir_tree_printer:
                     break
 
 
-    def _walk_dir_with_ignore(self, dir, traversal_path="", ignore=False):
+    def _walk_dir_with_ignore(self, dir, traversal_path=""):
         files = []
         sub_dirs = deque([])
 
@@ -85,11 +84,11 @@ class _dir_tree_printer:
             name = entry.name
             if entry.is_dir():
                 name += "/"
-                if ignore and self._should_ignore(name):
+                if self._should_ignore(name):
                     continue
                 sub_dirs.append(name)
             elif entry.is_file():
-                if ignore and self._should_ignore(name):
+                if self._should_ignore(name):
                     continue
                 files.append(name)
 
@@ -105,12 +104,12 @@ class _dir_tree_printer:
                 self._print_sub_dir(sub_dir, traversal_path)   # Print sub_dirs
 
                 if len(sub_dirs) > 0:
-                    self._walk_dir_with_ignore(os.path.join(dir, sub_dir), traversal_path, ignore)  # Recursive DFS
+                    self._walk_dir_with_ignore(os.path.join(dir, sub_dir), traversal_path)  # Recursive DFS
                 else:
                     break
 
 
-def print_dir_tree(outfile, ignorefile=None):
+def print_dir_tree(dir, outfile, ignorefile=None):
     printer = _dir_tree_printer()
     outfile = os.path.join(outfile)
 
@@ -130,39 +129,12 @@ def print_dir_tree(outfile, ignorefile=None):
 
     # Run walk
     if ignorefile is not None:
-        printer._walk_dir_with_ignore(outfile)
+        printer._walk_dir_with_ignore(dir)
     else:
-        printer._walk_dir(outfile)
+        printer._walk_dir(dir)
 
     # Print tree
     with open(outfile, "a", encoding="utf-8") as f:
         for line in printer.print_list:
             f.write(line + "\n")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
