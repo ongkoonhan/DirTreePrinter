@@ -110,7 +110,7 @@ class _dir_tree_printer:
                     break
 
 
-def print_dir_tree(outfile, ignore=None):
+def print_dir_tree(outfile, ignorefile=None):
     printer = _dir_tree_printer()
     outfile = os.path.join(outfile)
 
@@ -118,9 +118,9 @@ def print_dir_tree(outfile, ignore=None):
         os.remove(outfile)
 
     # Build ignore list
-    if ignore is not None:
-        ignore = os.path.join(ignore)
-        assert os.path.exists(ignore), "{0} does not exist!".format(ignore)
+    if ignorefile is not None:
+        ignore = os.path.join(ignorefile)
+        assert os.path.exists(ignorefile), "{0} does not exist!".format(ignore)
         ws = [ws for ws in string.whitespace]
         with open(ignore, "r") as f:
             for line in f:
@@ -129,7 +129,7 @@ def print_dir_tree(outfile, ignore=None):
                         printer.ignore_list.append(line.rstrip("\n"))
 
     # Run walk
-    if ignore is not None:
+    if ignorefile is not None:
         printer._walk_dir_with_ignore(outfile)
     else:
         printer._walk_dir(outfile)
