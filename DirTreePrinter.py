@@ -6,9 +6,9 @@ from collections import deque
 
 class __dir_tree_printer:
 
-    def __init__(self):
-        self.print_list = ["root/"]
-        self.ignore_list = [".git/"]
+    def __init__(self, root_name=None, other_ignore_list=None):
+        self.print_list = ["root/"] if root_name is None else [root_name]
+        self.ignore_list = [".git/"] if other_ignore_list is None else list(other_ignore_list)
         self.bar_vert = chr(9474)
         self.bar_horz = chr(9472)
         self.bar_T = chr(9500)
@@ -17,7 +17,7 @@ class __dir_tree_printer:
     def should_ignore(self, entry, path):
         for pat in self.ignore_list:
             if fnmatch.fnmatch(entry, pat):
-                print("-- ignored: {0} -> ignore pattern: {1}".format(path, pat))
+                print("-- ignore pattern: {0} -> ignored: {1}".format(pat, path))
                 return True
         return False
 
@@ -114,17 +114,17 @@ class __dir_tree_printer:
                 break
 
 
-def print_dir_tree(dir, outfile, ignorefile=None):
-    printer = __dir_tree_printer()
-    outfile = os.path.join(outfile)
+def print_dir_tree(dir, outfile_name, gitignore_file=None, root_name=None, other_ignore_list=None):
+    printer = __dir_tree_printer(root_name=root_name, other_ignore_list=other_ignore_list)
+    outfile = os.path.join(outfile_name)
 
     if os.path.exists(outfile):
         os.remove(outfile)
 
     # Build ignore list
-    if ignorefile is not None:
-        ignore = os.path.join(ignorefile)
-        assert os.path.exists(ignorefile), "{0} does not exist!".format(ignore)
+    if gitignore_file is not None:
+        ignore = os.path.join(gitignore_file)
+        assert os.path.exists(gitignore_file), "{0} does not exist!".format(ignore)
         ws = [ws for ws in string.whitespace]
         with open(ignore, "r") as f:
             for line in f:
@@ -133,7 +133,7 @@ def print_dir_tree(dir, outfile, ignorefile=None):
                         printer.ignore_list.append(line.rstrip("\n"))
 
     # Run walk
-    if ignorefile is not None:
+    if gitignore_file is not None:
         printer.walk_dir_with_ignore(dir)
     else:
         printer.walk_dir(dir)
